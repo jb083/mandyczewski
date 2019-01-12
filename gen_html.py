@@ -166,7 +166,6 @@ def make_index(summary):
   <body>
     <article>
       <h1></h1>
-      <ul></ul>
     </article>
     <footer>
       <div class="copyright"></div>
@@ -177,8 +176,15 @@ def make_index(summary):
     index[0][1].text = summary["title"]
     index[1][0][0].text = summary["title"]
 
+    # アブストラクトの挿入
+    if summary["abstract"] != "":
+        abst = lxml.html.Element("div")
+        abst.attrib["class"] = "abstract"
+        abst.text = summary["abstract"]
+        index[1][0].append(abst)
+
     # 目次の作成
-    ul = index[1][0][1]
+    ul = lxml.html.Element("ul")
     for fp in file_list(summary):
         fp = "../html/"+fp[:-2]+"html"
         with open(fp, "r", encoding="utf-8") as f:
@@ -198,6 +204,7 @@ def make_index(summary):
             subli.append(h2)
             li[1].append(subli)
         ul.append(li)
+    index[1][0].append(ul)
 
     # 著作権表示
     index[1][1][0].text = "©{} {}".format( summary["date"],
