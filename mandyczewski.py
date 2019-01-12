@@ -2,35 +2,29 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import os
-import toml
 from gen_html import *
+from new_note import new_note
 
-def read_summary():
-    # 文書データの読み込み
-    if not os.path.exists("SUMMARY.toml"):
-        print("Error: can not find `SUMMARY.toml` in this directory.")
-        sys.exit()
-    with open("SUMMARY.toml","r") as f:
-        summary = toml.load(f)
-    return summary
-
-def file_list(summary):
-    if "main" in summary:
-        return summary["main"]
-    elif "chapter" in summary:
-        fl = []
-        for c in summary["chapter"]:
-            fl.extend(c)
-        return fl
-    else:
-        sys.exit()
-
-            
-if __name__ == "__main__":
+def gen_html():
+    # SUMMARY.toml の読み込み
     summary = read_summary()
-    pandoc(file_list(summary))
-    if "main" in summary["files"]:
-        format_html(summary["files"]["main"])
+    
+    # pandoc により HTML ファイルを生成
+    pandoc(summary)
+
+    # HTML ファイルを調整しセクション番号および数式番号を付加,
+    # 相対参照を解決してハイパーリンクを張る
+    format_html(summary)
+
+    # index.html を作成し, 各 HTML ファイルにフッターを付加
     make_index(summary)
-    make_footer(summary["files"]["main"], summary["document"])
+    make_footer(summary)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        gen_html()
+    elif sys.argv[1] == "gen":
+        gen_html()
+    elif sys.argv[1] == "new":
+        new_note()
