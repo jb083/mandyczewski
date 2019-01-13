@@ -106,8 +106,8 @@ def format_html_file(fp, sec, dic):
         if math.getnext() is not None:
             if math.getnext().tag == "nolabel":
                 continue
-            l += 1
-            math[1].text = "({}.{})".format(sec.replace("-","."),l)
+        l += 1
+        math[1].text = "({}.{})".format(sec.replace("-","."),l)
 
     # 数式番号の名称を記録
     for label in src.xpath("//label"):
