@@ -22,6 +22,8 @@ def gen_html():
 
 
 if __name__ == "__main__":
+    print("mandyczewski 0.1.4")
+    
     if len(sys.argv) == 1:
         gen_html()
     elif sys.argv[1] == "gen":
