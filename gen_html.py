@@ -25,7 +25,7 @@ def file_list(summary):
     elif "chapter" in summary:
         fl = []
         for c in summary["chapter"]:
-            fl.extend(c)
+            fl.extend(c["files"])
         return fl
     else:
         print("Error: `SUMMARY.toml` must have `main` or `chapter`, but can not find it.")
@@ -60,6 +60,7 @@ def pandoc(summary):
     fl = file_list(summary)
     pool = mp.Pool(len(fl))
     pool.map(pandoc_convert, fl)
+    pool.close()
 
 
 def format_html_file(fp, sec, dic):
@@ -73,6 +74,10 @@ def format_html_file(fp, sec, dic):
     for dom in src.xpath("//p"):
         dom.tag = "div"
         dom.attrib["class"] = "paragraph"
+
+    # 脚注があるとき, <hr> 要素を除去
+    for footnote in src.xpath("//section[@class='footnotes']"):
+        footnote.remove(footnote[0])
 
     # セクション番号を付加
     for section in src.xpath("//section[@class='level1']"):
@@ -132,7 +137,7 @@ def format_html(summary):
     elif "chapter" in summary:
         for cp, clist in enumerate(summary["chapter"]):
             cp += 1
-            for sec, fp in enumerate(clist):
+            for sec, fp in enumerate(clist["files"]):
                 sec += 1
                 fp = "../html/"+fp[:-2]+"html"
                 format_html_file(fp, "{}-{}".format(cp,sec), dic)
