@@ -82,7 +82,10 @@ def format_html_file(fp, sec, dic):
     # セクション番号を付加
     for section in src.xpath("//section[@class='level1']"):
         text = section[0].text
-        section[0].text = "{}. {}".format(sec, text)
+        if "{}".format(text) != "None":
+            section[0].text = "{}. {}".format(sec, text)
+        else:
+            section[0].text = "{}. ".format(sec)
         dic[section.attrib["id"]] = [ fp, "{}".format(sec) ]
     for subsec, section in enumerate(src.xpath("//section[@class='level2']")):
         text = section[0].text
