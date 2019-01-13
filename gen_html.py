@@ -68,7 +68,7 @@ def format_html_file(fp, sec, dic):
         src = lxml.html.fromstring(f.read())
         
     # head>title の情報を補う
-    src.xpath("//title")[0].text = src.xpath("//h1")[0].text
+    src.xpath("//title")[0].text = "{}".format(src.xpath("//h1")[0].text)
 
     # <p> タグを <div> タグに変換
     for dom in src.xpath("//p"):
@@ -125,6 +125,19 @@ def format_html_file(fp, sec, dic):
         dic[eqlabel] = [ fp, target[1].text ]
         label.drop_tag()
 
+    # 図に連番を振り記録
+    figcount = 0
+    for figure in src.xpath("//figure"):
+        figcount += 1
+        for caption in figure.xpath("//figcaption"):
+            if "{}".format(caption.text) != "None":
+                caption.text = "図{}-{}: {}".format(sec, figcount, caption.text)
+            else:
+                caption.text = "図{}-{}: ".format(sec, figcount)
+        if "id" in figure.attrib:
+            dic[figure.attrib["id"]] = [ fp, "{}-{}".format(sec, figcount) ]
+        
+
     # ファイル書き出し
     write_src(src, fp)
 
@@ -144,11 +157,9 @@ def format_html(summary):
                 sec += 1
                 fp = "../html/"+fp[:-2]+"html"
                 format_html_file(fp, "{}-{}".format(cp,sec), dic)
-    else:
-        print("Error: `SUMMARY.toml` must have `main` or `chapter`, but can not find it.")
-        sys.exit()
+
+    # 参照を解決
     for fp in file_list(summary):
-        # 参照を解決
         fp = "../html/"+fp[:-2]+"html"
         with open(fp,"r",encoding="utf-8") as f:
             src = lxml.html.fromstring(f.read())
