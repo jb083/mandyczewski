@@ -167,6 +167,9 @@ def format_html(summary):
         for ref in src.xpath("//ref"):
             label = ref.attrib["ref"]
             ref.tag = "a"
+            if not label in dic:
+                print("Error: label {} in '{}' is not declared.".format(label, fp))
+                sys.exit()
             ref.attrib["href"] = dic[label][0]+"#{}".format(label)
             ref.text = dic[label][1]
         # ファイル書き出し
