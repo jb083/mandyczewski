@@ -62,6 +62,11 @@ def pandoc(summary):
     pool.map(pandoc_convert, fl)
     pool.close()
 
+    fl = summary["appendix"]
+    pool = mp.Pool(len(fl))
+    pool.map(pandoc_convert, fl)
+    pool.close()
+
 
 def format_html_file(fp, sec, dic):
     with open(fp,"r",encoding="utf-8") as f:
@@ -175,40 +180,10 @@ def format_html(summary):
         # ファイル書き出し
         write_src(src, fp)
 
-        
 
-def make_index(summary):
-    # index.html の作成
-    index = lxml.html.fromstring('''<html lang="ja">
-  <head>
-    <meta charset="UTF-8"/>
-    <title></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link href="css/index.css" rel="stylesheet"/>
-  </head>
-  <body>
-    <article>
-      <h1></h1>
-    </article>
-    <footer>
-      <div class="copyright"></div>
-    </footer>
-  </body>
-</html>''')
-    # <title> タグ
-    index[0][1].text = summary["title"]
-    index[1][0][0].text = summary["title"]
-
-    # アブストラクトの挿入
-    if summary["abstract"] != "":
-        abst = lxml.html.Element("div")
-        abst.attrib["class"] = "abstract"
-        abst.text = summary["abstract"]
-        index[1][0].append(abst)
-
-    # 目次の作成
+def make_toc(index, file_list):
     ul = lxml.html.Element("ul")
-    for fp in file_list(summary):
+    for fp in file_list:
         fp = "../html/"+fp[:-2]+"html"
         with open(fp, "r", encoding="utf-8") as f:
             src = lxml.html.fromstring(f.read())
@@ -228,6 +203,38 @@ def make_index(summary):
             li[1].append(subli)
         ul.append(li)
     index[1][0].append(ul)
+    return index
+
+
+def make_index(summary):
+    # index.html の作成
+    index = lxml.html.fromstring('''<html lang="ja">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>{0}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="css/index.css" rel="stylesheet"/>
+  </head>
+  <body>
+    <article>
+      <h1>{0}</h1>
+    </article>
+    <footer>
+      <div class="copyright"></div>
+    </footer>
+  </body>
+</html>'''.format(summary["title"]))
+
+    # アブストラクトの挿入
+    if summary["abstract"] != "":
+        abst = lxml.html.Element("div")
+        abst.attrib["class"] = "abstract"
+        abst.text = summary["abstract"]
+        index[1][0].append(abst)
+
+    # 目次の作成
+    index = make_toc( index, file_list(summary) )
+    index = make_toc( index, summary["appendix"] )
 
     # 著作権表示
     index[1][1][0].text = "©{} {}".format( summary["date"],
