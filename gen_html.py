@@ -148,6 +148,21 @@ def format_html_file(fp, sec, dic):
     write_src(src, fp)
 
 
+def reference(fp, dic):
+    fp = "../html/"+fp[:-2]+"html"
+    with open(fp,"r",encoding="utf-8") as f:
+        src = lxml.html.fromstring(f.read())
+    for ref in src.xpath("//ref"):
+        label = ref.attrib["ref"]
+        ref.tag = "a"
+        if not label in dic:
+            print("Error: label {} in '{}' is not declared.".format(label, fp))
+            sys.exit()
+        ref.attrib["href"] = dic[label][0]+"#{}".format(label)
+        ref.text = dic[label][1]
+    # ファイル書き出し
+    write_src(src, fp)
+    
 def format_html(summary):
     # 各 html ファイルの形を整える
     dic = {} # 数式番号の参照を解決するための辞書
@@ -163,22 +178,18 @@ def format_html(summary):
                 sec += 1
                 fp = "../html/"+fp[:-2]+"html"
                 format_html_file(fp, "{}-{}".format(cp,sec), dic)
+    for sec, fp in enumerate(summary["appendix"]):
+        sec = [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+                "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", ][sec]
+        fp = "../html/"+fp[:-2]+"html"
+        format_html_file(fp, "{}".format(sec), dic)
 
     # 参照を解決
     for fp in file_list(summary):
-        fp = "../html/"+fp[:-2]+"html"
-        with open(fp,"r",encoding="utf-8") as f:
-            src = lxml.html.fromstring(f.read())
-        for ref in src.xpath("//ref"):
-            label = ref.attrib["ref"]
-            ref.tag = "a"
-            if not label in dic:
-                print("Error: label {} in '{}' is not declared.".format(label, fp))
-                sys.exit()
-            ref.attrib["href"] = dic[label][0]+"#{}".format(label)
-            ref.text = dic[label][1]
-        # ファイル書き出し
-        write_src(src, fp)
+        reference(fp, dic)
+    for fp in summary["appendix"]:
+        reference(fp, dic)
+        
 
 
 def make_toc(index, file_list):
