@@ -52,8 +52,10 @@ def write_src(src, file_name):
 
 
 def pandoc_convert(fp):
+    devnull = open('/dev/null', 'w')
     subprocess.run(["pandoc", fp, "-t", "html5", "-s", "--mathml", "--section-divs",
-                        "--css=../css/style.css", "-o", "../html/"+fp[:-2]+"html" ])
+                    "--css=../css/style.css", "-o", "../html/"+fp[:-2]+"html",
+    ], stderr=devnull)
 
 def pandoc(summary):
     # pandoc による html ソースの生成
