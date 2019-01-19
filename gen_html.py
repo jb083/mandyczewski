@@ -65,9 +65,10 @@ def pandoc(summary):
     pool.close()
 
     fl = summary["appendix"]
-    pool = mp.Pool(len(fl))
-    pool.map(pandoc_convert, fl)
-    pool.close()
+    if len(fl) > 0:
+        pool = mp.Pool(len(fl))
+        pool.map(pandoc_convert, fl)
+        pool.close()
 
 
 def format_html_file(fp, sec, dic):
