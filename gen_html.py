@@ -120,7 +120,13 @@ def format_html_file(fp, sec, dic):
         math.append(lxml.html.Element("span"))
         math[1].attrib["class"] = "mnumber"
         if math.getnext() is not None:
-            if math.getnext().tag == "nolabel":
+            next_element = math.getnext()
+            if next_element.tag == "nolabel":
+                next_element.drop_tag()
+                continue
+            if next_element.tag == "tag":
+                math[1].text = "({})".format(next_element.attrib["id"])
+                next_element.drop_tag()
                 continue
         l += 1
         math[1].text = "({}.{})".format(sec.replace("-","."),l)
@@ -130,6 +136,8 @@ def format_html_file(fp, sec, dic):
         eqlabel = label.attrib["id"]
         target = label.getprevious()
         target[0].attrib["id"] = eqlabel
+        if eqlabel in dic:
+            print("Error: The id {} in {} already exists!".format(eqlabel,fp))
         dic[eqlabel] = [ fp, target[1].text ]
         label.drop_tag()
 
