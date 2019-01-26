@@ -7,6 +7,7 @@ import toml
 import copy
 import lxml.html
 import subprocess
+from itertools import chain
 import multiprocessing as mp
 
 def read_summary():
@@ -126,13 +127,13 @@ def format_html_file(fp, sec, dic):
                 continue
             if next_element.tag == "tag":
                 math[1].text = "({})".format(next_element.attrib["id"])
-                next_element.drop_tag()
+                #next_element.drop_tag()
                 continue
         l += 1
         math[1].text = "({}.{})".format(sec.replace("-","."),l)
 
     # 数式番号の名称を記録
-    for label in src.xpath("//label"):
+    for label in chain( src.xpath("//label"), src.xpath("//tag") ):
         eqlabel = label.attrib["id"]
         target = label.getprevious()
         target[0].attrib["id"] = eqlabel
