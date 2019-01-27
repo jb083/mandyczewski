@@ -272,6 +272,7 @@ def make_index(summary):
 
 def make_footer(summary):
     fl = file_list(summary)
+    fl.extend(summary["appendix"])
     # 各ファイルにフッターを生成
     section_names = []
     # セクション名を取得
