@@ -72,7 +72,8 @@ def pandoc(summary):
         pool.close()
 
 
-def format_html_file(fp, sec, dic):
+def format_html_file(fp, sec):
+    dic = {}
     with open(fp,"r",encoding="utf-8") as f:
         src = lxml.html.fromstring(f.read())
         
@@ -159,8 +160,11 @@ def format_html_file(fp, sec, dic):
     # ファイル書き出し
     write_src(src, fp)
 
+    return dic
+
 
 def reference(fp, dic):
+    # 参照の解決
     fp = "../html/"+fp[:-2]+"html"
     with open(fp,"r",encoding="utf-8") as f:
         src = lxml.html.fromstring(f.read())
@@ -174,27 +178,51 @@ def reference(fp, dic):
         ref.text = dic[label][1]
     # ファイル書き出し
     write_src(src, fp)
+
     
+def parallel_format(args):
+    fp = args[0]
+    name = args[1]
+    dic = format_html_file(fp, name)
+    return dic
+
 def format_html(summary):
     # 各 html ファイルの形を整える
     dic = {} # 数式番号の参照を解決するための辞書
     if "main" in summary:
+        # for sec, fp in enumerate(summary["main"]):
+        #     sec += 1
+        #     fp = "../html/"+fp[:-2]+"html"
+        #     format_html_file(fp, "{}".format(sec), dic)
+        args = []
         for sec, fp in enumerate(summary["main"]):
-            sec += 1
-            fp = "../html/"+fp[:-2]+"html"
-            format_html_file(fp, "{}".format(sec), dic)
+            args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec+1) ])
+        pool = mp.Pool(len(summary["main"]))
+        dics = pool.map(parallel_format, args)
+        for d in dics:
+            dic.update(d)
     elif "chapter" in summary:
         for cp, clist in enumerate(summary["chapter"]):
             cp += 1
+            args = []
             for sec, fp in enumerate(clist["files"]):
-                sec += 1
-                fp = "../html/"+fp[:-2]+"html"
-                format_html_file(fp, "{}-{}".format(cp,sec), dic)
-    for sec, fp in enumerate(summary["appendix"]):
-        sec = [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-                "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", ][sec]
-        fp = "../html/"+fp[:-2]+"html"
-        format_html_file(fp, "{}".format(sec), dic)
+                args.append([ "../html/"+fp[:-2]+"html", "{}-{}".format(cp,sec+1) ])
+            pool = mp.Pool(len(clist["files"]))
+            dics = pool.map(parallel_format, args)
+            for d in dics:
+                dic.update(d)
+    # appendix がある場合はそれも実行
+    if "appendix" in summary:
+        if len(summary["appendix"]) > 0:
+            args = []
+            for sec, fp in enumerate(summary["appendix"]):
+                sec = [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+                        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", ][sec]
+                args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec) ])
+            pool = mp.Pool(len(clist["files"]))
+            dics = pool.map(parallel_format, args)
+            for d in dics:
+                dic.update(d)
 
     # 参照を解決
     for fp in file_list(summary):
