@@ -65,11 +65,12 @@ def pandoc(summary):
     pool.map(pandoc_convert, fl)
     pool.close()
 
-    fl = summary["appendix"]
-    if len(fl) > 0:
-        pool = mp.Pool(len(fl))
-        pool.map(pandoc_convert, fl)
-        pool.close()
+    if "appendix" in summary:
+        fl = summary["appendix"]
+        if len(fl) > 0:
+            pool = mp.Pool(len(fl))
+            pool.map(pandoc_convert, fl)
+            pool.close()
 
 
 def format_html_file(fp, sec):
@@ -227,8 +228,9 @@ def format_html(summary):
     # 参照を解決
     for fp in file_list(summary):
         reference(fp, dic)
-    for fp in summary["appendix"]:
-        reference(fp, dic)
+    if "appendix" in summary:
+        for fp in summary["appendix"]:
+            reference(fp, dic)
         
 
 
@@ -285,7 +287,8 @@ def make_index(summary):
 
     # 目次の作成
     index = make_toc( index, file_list(summary) )
-    index = make_toc( index, summary["appendix"] )
+    if "appendix" in summary:
+        index = make_toc( index, summary["appendix"] )
 
     # 著作権表示
     index[1][1][0].text = "©{} {}".format( summary["date"],
@@ -300,7 +303,8 @@ def make_index(summary):
 
 def make_footer(summary):
     fl = file_list(summary)
-    fl.extend(summary["appendix"])
+    if "appendix" in summary:
+        fl.extend(summary["appendix"])
     # 各ファイルにフッターを生成
     section_names = []
     # セクション名を取得
