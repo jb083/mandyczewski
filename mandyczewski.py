@@ -4,6 +4,7 @@
 import sys
 from gen_html import *
 from new_note import new_note
+from deploy import deploy
 
 def gen_html():
     # SUMMARY.toml の読み込み
@@ -22,7 +23,7 @@ def gen_html():
 
 
 if __name__ == "__main__":
-    print("mandyczewski 0.1.4")
+    print("mandyczewski 0.1.6")
     
     if len(sys.argv) == 1:
         gen_html()
@@ -30,3 +31,6 @@ if __name__ == "__main__":
         gen_html()
     elif sys.argv[1] == "new":
         new_note()
+    elif sys.argv[1] == "deploy":
+        deploy()
+        
