@@ -220,7 +220,7 @@ def format_html(summary):
                 sec = [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
                         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", ][sec]
                 args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec) ])
-            pool = mp.Pool(len(clist["files"]))
+            pool = mp.Pool(len(summary["appendix"]))
             dics = pool.map(parallel_format, args)
             for d in dics:
                 dic.update(d)
