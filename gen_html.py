@@ -311,7 +311,7 @@ def make_footer(summary):
     with open("../index.html", "r", encoding="utf-8") as f:
         src = lxml.html.fromstring(f.read())
     for a in src.xpath("/html/body/article/ul/li/a"):
-        section_names.append(a.text)
+        section_names.append(a)
     for i, fp in enumerate(fl):
         fp = "../html/"+fp[:-2]+"html"
         with open(fp,"r",encoding="utf-8") as f:
@@ -328,8 +328,7 @@ def make_footer(summary):
         div = lxml.html.Element("div")
         div.attrib["class"] = "previous"
         if i > 0:
-            div.append(lxml.html.Element("a"))
-            div[0].text = section_names[i-1]
+            div.append( section_names[i-1] )
             div[0].attrib["href"] = fl[i-1][:-2]+"html"
         footer[0].append( div )
         # 目次
@@ -341,8 +340,7 @@ def make_footer(summary):
         if i < len(fl)-1:
             # 次のセクション
             div = lxml.html.Element("div")
-            div.append(lxml.html.Element("a"))
-            div[0].text = section_names[i+1]
+            div.append( section_names[i+1] )
             div[0].attrib["href"] = fl[i+1][:-2]+"html"
             footer[0].append( div )
         # 著作権表示
