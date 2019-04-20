@@ -59,6 +59,9 @@ def pandoc_convert(fp):
     ], stderr=devnull)
 
 def pandoc(summary):
+    # html ディレクトリが存在しなければつくる
+    if not os.path.exists("../html"):
+        os.mkdir("../html")
     # pandoc による html ソースの生成
     fl = file_list(summary)
     pool = mp.Pool(len(fl))

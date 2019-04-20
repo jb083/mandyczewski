@@ -23,7 +23,7 @@ def gen_html():
 
 
 if __name__ == "__main__":
-    print("mandyczewski 0.1.6")
+    print("mandyczewski 0.1.7")
     
     if len(sys.argv) == 1:
         gen_html()
