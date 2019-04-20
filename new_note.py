@@ -50,15 +50,15 @@ abstract = ""
 # If not, remove this "main" field and use "chapter" field.
 main = []
 
-# If there is the "main" field, this "chapter" field is ignored.
-# So to generate a chaptered note, remove "main" field.
-chapter = [
-    [],
-]
-
 appendix = []
 
 ref = []
+
+# If there is the "main" field, this "chapter" field is ignored.
+# So to generate a chaptered note, remove "main" field.
+[[chapter]]
+name = ""
+files = []
 '''.format(summary["title"], summary["author"], summary["date"]))
 
 
