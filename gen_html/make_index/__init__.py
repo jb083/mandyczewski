@@ -36,9 +36,10 @@ def run(summary):
         from . import toc_chapter
         index = toc_chapter.run( index, summary )
     if "appendix" in summary:
-        # appendix がある場合
-        from . import toc_appendix
-        index = toc_appendix.run( index, summary )
+        if len(summary["appendix"]) > 0:
+            # appendix がある場合
+            from . import toc_appendix
+            index = toc_appendix.run( index, summary )
 
     # 著作権表示
     index[1][1][0].text = "©{} {}".format( summary["date"],
