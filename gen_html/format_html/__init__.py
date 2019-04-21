@@ -8,13 +8,23 @@ import multiprocessing as mp
 from .. import tool
 
 
-def format_html_file(fp, sec):
+def format_html_file(fp, sec, book_title):
     dic = {}
     with open(fp,"r",encoding="utf-8") as f:
         src = lxml.html.fromstring(f.read())
         
     # head>title の情報を補う
-    src.xpath("//title")[0].text = "{}".format(src.xpath("//h1")[0].text)
+    h1 = src[1][0][0]
+    title = ""
+    if "{}".format(h1.text) != "None":
+        title += h1.text
+    for elem in list(h1):
+        if elem.tag == "math": # <math> 要素が含まれるとき, <annotation> 要素のテキストに置き換える
+            title += elem[0][-1].text 
+        elif "{}".format(elem.text) != "None":
+            title += elem.text # そうでなく text フィールドを持つとき, そのテキストに置き換える (em タグ等)
+        title += elem.tail
+    src.xpath("//title")[0].text = title + " - {}".format(book_title)
 
     # <p> タグを <div> タグに変換
     for dom in src.xpath("//p"):
@@ -119,7 +129,8 @@ def reference(fp, dic):
 def parallel_format(args):
     fp = args[0]
     name = args[1]
-    dic = format_html_file(fp, name)
+    book_title = args[2]
+    dic = format_html_file(fp, name, book_title)
     return dic
 
 
@@ -130,7 +141,7 @@ def run(summary):
         # すべての節に対して parallel_format 関数を並列に適用
         args = []
         for sec, fp in enumerate(summary["main"]):
-            args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec+1) ])
+            args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec+1), summary["title"] ])
         pool = mp.Pool(len(summary["main"]))
         dics = pool.map(parallel_format, args)
         for d in dics:
@@ -145,7 +156,7 @@ def run(summary):
             cp += 1
             args = []
             for sec, fp in enumerate(clist["files"]):
-                args.append([ "../html/"+fp[:-2]+"html", "{}-{}".format(cp,sec+1) ])
+                args.append([ "../html/"+fp[:-2]+"html", "{}-{}".format(cp,sec+1), summary["title"] ])
             pool = mp.Pool(len(clist["files"]))
             dics = pool.map(parallel_format, args)
             for d in dics:
@@ -157,7 +168,7 @@ def run(summary):
             for sec, fp in enumerate(summary["appendix"]):
                 sec = [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
                         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", ][sec]
-                args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec) ])
+                args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec), summary["title"] ])
             pool = mp.Pool(len(summary["appendix"]))
             dics = pool.map(parallel_format, args)
             for d in dics:
