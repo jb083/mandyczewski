@@ -127,10 +127,7 @@ def run(summary):
     # 各 html ファイルの形を整える
     dic = {} # 数式番号の参照を解決するための辞書
     if "main" in summary:
-        # for sec, fp in enumerate(summary["main"]):
-        #     sec += 1
-        #     fp = "../html/"+fp[:-2]+"html"
-        #     format_html_file(fp, "{}".format(sec), dic)
+        # すべての節に対して parallel_format 関数を並列に適用
         args = []
         for sec, fp in enumerate(summary["main"]):
             args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec+1) ])
@@ -139,7 +136,12 @@ def run(summary):
         for d in dics:
             dic.update(d)
     elif "chapter" in summary:
-        for cp, clist in enumerate(summary["chapter"]):
+        for cp, clist in enumerate(summary["chapter"]): # 章を巡回
+            if len(clist["files"]) == 0:
+                # この章が節を含まないとき警告を表示して以下の処理を省略
+                sys.stderr.write("Warning: no files in the chapter '{}'\n".format(clist["name"]))
+                continue
+            # すべての節に対して parallel_format 関数を並列に適用
             cp += 1
             args = []
             for sec, fp in enumerate(clist["files"]):
