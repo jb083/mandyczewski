@@ -1,30 +1,4 @@
 import lxml.html
-from .. import tool
-
-def make_toc(index, file_list):
-    ul = lxml.html.Element("ul")
-    for fp in file_list:
-        fp = "../html/"+fp[:-2]+"html"
-        with open(fp, "r", encoding="utf-8") as f:
-            src = lxml.html.fromstring(f.read())
-        li = lxml.html.Element("li")
-        for section in src.xpath("//section[@class='level1']"):
-            h1 = section[0]
-            h1.tag = "a"
-            h1.attrib["href"] = fp[3:]
-            li.append(h1)
-        li.append(lxml.html.Element("ul"))
-        for section in src.xpath("//section[@class='level2']"):
-            h2 = section[0]
-            h2.tag = "a"
-            h2.attrib["href"] = fp[3:]+"#"+section.attrib["id"]
-            subli = lxml.html.Element("li")
-            subli.append(h2)
-            li[1].append(subli)
-        ul.append(li)
-    index[1][0].append(ul)
-    return index
-
 
 def run(summary):
     # index.html の作成
@@ -53,9 +27,18 @@ def run(summary):
         index[1][0].append(abst)
 
     # 目次の作成
-    index = make_toc( index, tool.file_list(summary) )
+    if "main" in summary:
+        # 単一の章のみの場合
+        from . import toc_main
+        index = toc_main.run( index, summary )
+    else:
+        # 複数の章を含む場合
+        from . import toc_chapter
+        index = toc_chapter.run( index, summary )
     if "appendix" in summary:
-        index = make_toc( index, summary["appendix"] )
+        # appendix がある場合
+        from . import toc_appendix
+        index = toc_appendix.run( index, summary )
 
     # 著作権表示
     index[1][1][0].text = "©{} {}".format( summary["date"],
