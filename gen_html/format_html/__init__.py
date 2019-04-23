@@ -74,7 +74,6 @@ def format_html_file(fp, sec, book_title):
                 continue
             if next_element.tag == "tag":
                 math[1].text = "({})".format(next_element.attrib["id"])
-                #next_element.drop_tag()
                 continue
         l += 1
         math[1].text = "({}.{})".format(sec.replace("-","."),l)
@@ -85,13 +84,14 @@ def format_html_file(fp, sec, book_title):
         parent = label.getparent()
         if len(parent) == 1:
             # (誤って) label 要素が p タグで囲まれた場合, p 要素自体を label とみなす
+            label.drop_tree()
             label = parent
         target = label.getprevious()
         target[0].attrib["id"] = eqlabel
         if eqlabel in dic:
             print("Error: The id {} in {} already exists!".format(eqlabel,fp))
         dic[eqlabel] = [ fp, target[1].text ]
-        label.drop_tree()
+        label.drop_tag()
 
     # 図に連番を振り記録
     figcount = 0
