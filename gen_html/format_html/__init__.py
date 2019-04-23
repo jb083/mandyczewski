@@ -78,16 +78,20 @@ def format_html_file(fp, sec, book_title):
                 continue
         l += 1
         math[1].text = "({}.{})".format(sec.replace("-","."),l)
-
+    
     # 数式番号の名称を記録
     for label in chain( src.xpath("//label"), src.xpath("//tag") ):
         eqlabel = label.attrib["id"]
+        parent = label.getparent()
+        if len(parent) == 1:
+            # (誤って) label 要素が p タグで囲まれた場合, p 要素自体を label とみなす
+            label = parent
         target = label.getprevious()
         target[0].attrib["id"] = eqlabel
         if eqlabel in dic:
             print("Error: The id {} in {} already exists!".format(eqlabel,fp))
         dic[eqlabel] = [ fp, target[1].text ]
-        label.drop_tag()
+        label.drop_tree()
 
     # 図に連番を振り記録
     figcount = 0
