@@ -7,7 +7,7 @@ from deploy import deploy
 
 
 if __name__ == "__main__":
-    sys.stderr.write("mandyczewski 0.2.4\n")
+    sys.stderr.write("mandyczewski 0.2.5\n")
     
     if len(sys.argv) == 1:
         from gen_html import gen_html
