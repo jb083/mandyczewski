@@ -25,6 +25,7 @@ def run(index, summary):
             li.append(lxml.html.Element("ul"))
             for section in src.xpath("//section[@class='level2']"):
                 h2 = section[0]
+                h2.tail = "" # 第1段落が div で囲まれていない場合うまくいかないのを修正
                 h2.tag = "a"
                 h2.attrib["href"] = fp[3:]+"#"+section.attrib["id"]
                 subli = lxml.html.Element("li")
