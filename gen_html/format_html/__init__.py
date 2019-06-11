@@ -31,6 +31,23 @@ def format_html_file(fp, sec, book_title):
         dom.tag = "div"
         dom.attrib["class"] = "paragraph"
 
+    # <in-paragraph> タグ
+    # ol, ul など pandoc が自動的に独立した要素としてしまう要素を, 直前の div 要素の子要素にする.
+    for dom in src.xpath("//in-paragraph"):
+        parent = dom.getparent() # 親になるべき (div) 要素
+        while not parent.tag in [ "div", "p" ]:
+            parent = parent.getparent()
+        dom.drop_tree()
+        target = parent.getnext() # 段落中に追加すべき DOM
+        if target.tag in [ "div", "p" ]:
+            # 両方 div なら中身だけくっつける
+            parent[-1].tail = target.text # 最初のテキストノードを最後の要素のテイルとする
+            parent.extend( target ) # 残りの要素をまるごとくっつける
+            target.drop_tree() # 残骸を消去
+        else:
+            # ol, ul 等ならまるごと parent に入れる
+            parent.append( target )
+    
     # 脚注があるとき, <hr> 要素を除去
     for footnote in src.xpath("//section[@class='footnotes']"):
         footnote.remove(footnote[0])
