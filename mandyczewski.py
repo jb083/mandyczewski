@@ -5,9 +5,20 @@ import sys
 from new_note import new_note
 from deploy import deploy
 
+version = "0.3.1"
 
 if __name__ == "__main__":
-    sys.stderr.write("mandyczewski 0.3.0\n")
+    if sys.argv[1] == "--version":
+        print("mandyczewski {}".format(version))
+        sys.exit()
+    elif sys.argv[1] == "--help":
+        print("mandyczewski {}\n".format(version))
+        import helpdoc
+        helpdoc.println()
+        sys.exit()
+        
+    
+    sys.stderr.write("mandyczewski {}\n".format(version))
     
     if len(sys.argv) == 1:
         from gen_html import gen_html
@@ -19,4 +30,8 @@ if __name__ == "__main__":
         new_note()
     elif sys.argv[1] == "deploy":
         deploy()
+    else:
+        sys.stderr.write("\nInvalid arguments or options. Use '--help' to get help.\n")
+        
+    
         
