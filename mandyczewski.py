@@ -5,17 +5,18 @@ import sys
 from new_note import new_note
 from deploy import deploy
 
-version = "0.3.1"
+version = "0.3.2"
 
 if __name__ == "__main__":
-    if sys.argv[1] == "--version":
-        print("mandyczewski {}".format(version))
-        sys.exit()
-    elif sys.argv[1] == "--help":
-        print("mandyczewski {}\n".format(version))
-        import helpdoc
-        helpdoc.println()
-        sys.exit()
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--version":
+            print("mandyczewski {}".format(version))
+            sys.exit()
+        elif sys.argv[1] == "--help":
+            print("mandyczewski {}\n".format(version))
+            import helpdoc
+            helpdoc.println()
+            sys.exit()
         
     
     sys.stderr.write("mandyczewski {}\n".format(version))
