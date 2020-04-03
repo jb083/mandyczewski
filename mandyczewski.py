@@ -5,7 +5,7 @@ import sys
 from new_note import new_note
 from deploy import deploy
 
-version = "0.3.2"
+version = "0.4.0"
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
