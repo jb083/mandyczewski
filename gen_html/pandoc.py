@@ -3,6 +3,7 @@
 # markdown ファイルを pandoc により html ファイルに変換する
 # 
 
+import shutil
 import os
 import subprocess
 import multiprocessing as mp
@@ -29,9 +30,10 @@ def pandoc_convert(fp):
     ], stderr=devnull)
 
 def run(summary):
-    # html ディレクトリが存在しなければつくる
-    if not os.path.exists("../html"):
-        os.mkdir("../html")
+    # html ディレクトリを空にして再作成
+    if os.path.exists("../html"):
+        shutil.rmtree("../html")
+    os.mkdir("../html")
     # pandoc による html ソースの生成
     fl = file_list(summary)
     pool = mp.Pool(len(fl))
