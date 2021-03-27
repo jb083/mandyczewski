@@ -162,6 +162,8 @@ def run(summary):
         # すべての節に対して parallel_format 関数を並列に適用
         args = []
         for sec, fp in enumerate(summary["main"]):
+            if "start" in summary:
+                sec = sec - 1 + summary["start"]
             args.append([ "../html/"+fp[:-2]+"html", "{}".format(sec+1), summary["title"] ])
         pool = mp.Pool(len(summary["main"]))
         dics = pool.map(parallel_format, args)
@@ -174,7 +176,10 @@ def run(summary):
                 sys.stderr.write("Warning: no files in the chapter '{}'\n".format(clist["name"]))
                 continue
             # すべての節に対して parallel_format 関数を並列に適用
-            cp += 1
+            if "start" in summary:
+                cp += summary["start"]
+            else:
+                cp += 1
             args = []
             for sec, fp in enumerate(clist["files"]):
                 args.append([ "../html/"+fp[:-2]+"html", "{}-{}".format(cp,sec+1), summary["title"] ])

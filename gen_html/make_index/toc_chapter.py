@@ -2,6 +2,9 @@ import lxml.html
 
 def run(index, summary):
     for c, chapter in enumerate(summary["chapter"]):
+        if "start" in summary:
+            c += summary["start"] - 1
+        
         # 章名を index.html に書き込む
         h2 = lxml.html.Element("h2")
         h2.attrib["class"] = "chapter-title"
